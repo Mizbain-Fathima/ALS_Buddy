@@ -18,7 +18,7 @@ It uses an intelligent combination of:
 
 ---
 
-## ✨ Features
+## Features
 
 - **Knowledge-Aware Conversations:** Retrieves relevant ALS information from pre-scraped medical sources using RAG.  
 - **Contextual Memory:** Maintains conversation history so users can ask follow-up questions.  
@@ -102,7 +102,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-###4️⃣ Set Up Environment Variables
+### 4️⃣ Set Up Environment Variables
 Create a .env file in the root folder:
 ```env
 HUGGINGFACEHUB_API_TOKEN=your_token_here
@@ -120,7 +120,7 @@ python RAG/api_main.py
 
 Your backend will start at → http://127.0.0.1:8000
 
-Test in your browser:
+**Test in your browser:**
 ```cpp
 http://127.0.0.1:8000/
 ```
@@ -134,6 +134,8 @@ streamlit run chat_ui.py
 
 Visit → http://localhost:8501
 
+---
+
 ### 💬 Example Queries
 | User Input                              | Sample Response                                                                                                                        |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -143,10 +145,9 @@ Visit → http://localhost:8501
 
 ---
 
-### 📘 API Reference
+### API Reference
 POST /ask
-
-Description: Sends a user query and returns a generated answer.
+**Description:** Sends a user query and returns a generated answer.
 
 Request:
 ```json
