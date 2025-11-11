@@ -35,4 +35,3 @@ def ask_question(query: UserQuery) -> Dict[str, str]:
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("api_main:api", host="0.0.0.0", port=8000)
-

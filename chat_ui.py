@@ -5,7 +5,7 @@ import requests
 API_URL = "http://127.0.0.1:8000/ask"
 
 # --- Streamlit UI ---
-st.set_page_config(page_title="ALS Buddy", page_icon="💬", layout="centered")
+st.set_page_config(page_title="ALS Support Chatbot", page_icon="💬", layout="centered")
 
 st.title("💬 ALS Support Chatbot")
 st.caption("Empathetic AI assistant to talk about ALS symptoms, treatments, and emotional support 💙")
