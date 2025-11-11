@@ -47,12 +47,14 @@ ALS-CHATBOT/
 │
 ├── webscrapped-data/
 │ ├── als_articles_expanded.json ← Cleaned ALS data used for retrieval
-│ └── scrape_als_articles.py ← Web scraping script for ALS sources
+│ ├── scrape_als_articles.py ← Web scraping script for ALS sources
+│ └── metadata.json ← metadata about the webscrapped data
 │
 ├── chat_ui.py ← Streamlit chatbot interface
 ├── preprocess_data.py ← Preprocess scraped ALS data
 ├── .env ← API keys and environment configs
 ├── .gitignore ← Ignored files and folders
+├── requirements.txt ← All the requirements needed
 ├── README.md ← This documentation file
 └── venv/ ← Python virtual environment
 ```
@@ -108,9 +110,12 @@ Create a .env file in the root folder:
 HUGGINGFACEHUB_API_TOKEN=your_token_here
 ```
 
-### 5️⃣ Initialize RAG Vectorstore (run once)
+### 5️⃣ Initialize RAG Vectorstore and provide the memoery to the bot (run once)
 ```bash
 python RAG/rag_setup.py
+python RAG/rag_chain.py
+python RAG/chatbot_with_memory.py
+python RAG/langgraph_chatbot.py
 ```
 
 ### 6️⃣ Start the FastAPI Backend
