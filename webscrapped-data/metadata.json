@@ -1,0 +1,45 @@
+{
+  "description": "Web-scraped dataset of articles and resources related to Amyotrophic Lateral Sclerosis (ALS).",
+  "source_urls": [
+    "https://www.ninds.nih.gov/health-information/disorders/amyotrophic-lateral-sclerosis-als",
+    "https://www.cdc.gov/als/index.html",
+    "https://medlineplus.gov/amyotrophiclateralsclerosis.html",
+    "https://www.mda.org/disease/amyotrophic-lateral-sclerosis",
+    "https://www.als.net/news/approved-drugs-for-als-progression/",
+    "https://www.iamals.org/what-is-als/",
+    "https://www.ninds.nih.gov/health-information/disorders/amyotrophic-lateral-sclerosis-als",
+    "https://rarediseases.info.nih.gov/diseases/5786/amyotrophic-lateral-sclerosis",
+    "https://lesturnerals.org/what-is-als/",
+    "https://lesturnerals.org/support-services/national-als-registry/",
+    "https://lesturnerals.org/research-patient-center/",
+    "https://lesturnerals.org/als-participation-in-clinical-research/",
+    "https://lesturnerals.org/als-breathing-guide/",
+    "https://lesturnerals.org/als-nutrition-guide/",
+    "https://lesturnerals.org/als-and-genetics/",
+    "https://lesturnerals.org/als-genetic-counseling-and-testing-for-family-members/",
+    "https://lesturnerals.org/als-communication/",
+    "https://lesturnerals.org/als-mobility-guide/",
+    "https://lesturnerals.org/als-home-modifications-guide/",
+    "https://lesturnerals.org/als-activities-of-daily-living-guide/",
+    "https://lesturnerals.org/caregiver/",
+    "https://lesturnerals.org/caregiver-rights/",
+    "https://lesturnerals.org/als-caregiver-self-care-guide/",
+    "https://lesturnerals.org/als-relationships-sex-and-intimacy-guide/",
+    "https://lesturnerals.org/als-children-guide/",
+    "https://www.als-mnd.org/what-is-alsmnd/",
+    "https://www.answerals.org/research/research-progress/",
+    "https://www.answerals.org/research/research-approach/",
+    "https://www.answerals.org/research/understanding-als/",
+    "https://www.answerals.org/research/als-myths/",
+    "https://www.mayoclinic.org/diseases-conditions/amyotrophic-lateral-sclerosis"
+  ],
+
+  "collection_date": "2025-11-10",
+  "data_format": "JSON",
+  "fields": [
+    "url",
+    "content"
+  ],
+  "usage": "Used as the knowledge base for the ALS Buddy chatbot, which retrieves relevant context for user queries.",
+  "limitations": "Web data may contain unverified or outdated medical information; use for educational or informational purposes only."
+}
