@@ -6,7 +6,7 @@ An empathetic AI chatbot built to provide information, emotional support, and co
 
 ## Project Overview
 
-**ALS Buddy** is designed to help users learn about ALS — its **symptoms**, **progression**, **treatments**, and **coping strategies** — through a natural and supportive chat experience.
+**ALS Buddy** is designed to help users learn about ALS - its **symptoms**, **progression**, **treatments** and **coping strategies** through a natural and supportive chat experience.
 
 It uses an intelligent combination of:
 - **LangChain + LangGraph** for conversational logic and flow control  
