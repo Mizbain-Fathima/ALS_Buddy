@@ -49,9 +49,9 @@ for url in urls:
             'Accept-Encoding': 'gzip, deflate',
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
-            'Referer': 'https://www.google.com/',  # Pretend referral from search
+            'Referer': 'https://www.google.com/',  # Pretend referral from google search
         }
-        r = requests.get(url, headers=headers, timeout=100)  # Increased timeout to 60 seconds
+        r = requests.get(url, headers=headers, timeout=100)  # Increased timeout to 100 seconds
         r.raise_for_status()
         soup = BeautifulSoup(r.text, 'html.parser')
 
