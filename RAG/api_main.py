@@ -1,37 +1,36 @@
-# File: RAG/api_main.lel.yml
-name: api_main
-type: server
-description: |
-  FastAPI-like server declaration in LEL. Exposes POST /ask which accepts a
-  JSON payload {question, session_id} and returns {answer}.
-server:
-  host: 0.0.0.0
-  port: 8080
-routes:
-  - path: /ask
-    method: POST
-    request_schema:
-      type: object
-      properties:
-        question:
-          type: string
-        session_id:
-          type: string
-    response_schema:
-      type: object
-      properties:
-        answer:
-          type: string
-    handler:
-      - id: call_workflow
-        type: workflow_call
-        params:
-          workflow: "langgraph_chatbot"
-          inputs:
-            input: request.question
-            session_id: request.session_id
-      - id: return
-        type: respond
-        params:
-          body:
-            answer: call_workflow.answer
+from fastapi import FastAPI
+from pydantic import BaseModel
+from langgraph_chatbot import app as chatbot_app
+from typing import Dict
+import uvicorn
+
+# --- Define FastAPI instance ---
+api = FastAPI(
+    title="ALS Support Chatbot API",
+    description="An empathetic chatbot that provides information and emotional support about ALS using RAG + LangGraph.",
+    version="1.0"
+)
+
+# --- Define request body model ---
+class UserQuery(BaseModel):
+    question: str
+
+# --- Root Route ---
+@api.get("/")
+def home():
+    return {"message": "Welcome to ALS Support Chatbot API. Use /ask to send a query."}
+
+# --- Chat Endpoint ---
+@api.post("/ask")
+def ask_question(query: UserQuery) -> Dict[str, str]:
+    """
+    Takes user input and returns chatbot response.
+    """
+    state = {"user_input": query.question, "context": "", "bot_output": ""}
+    result = chatbot_app.invoke(state)
+    return {"answer": result["bot_output"]}
+
+# --- Run server ---
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("api_main:api", host="0.0.0.0", port=8000)

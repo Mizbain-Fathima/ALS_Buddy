@@ -1,52 +1,40 @@
-# File: RAG/rag_chain.lel.yml
-name: rag_chain
-type: chain
-description: |
-  Retrieval-Augmented Generation chain: accepts user input, retrieves relevant
-  docs from Chroma vectorstore, constructs a prompt with memory & context, and
-  invokes the LLM to generate a response.
-inputs:
-  - input: string
-  - memory_context: string (optional)
-steps:
-  - id: retriever
-    type: chroma_retriever
-    params:
-      persist_directory: "RAG/chroma_db"
-      collection_name: "als_chunks"
-      embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
-      top_k: 5
-  - id: format_context
-    type: prompt
-    params:
-      template: |
-        You are an empathetic assistant for ALS-related questions. Use the
-        context below to answer the user's question. Be concise, factual,
-        and gently worded. Do not provide medical advice — recommend seeking
-        professional help when appropriate.
+from langchain.chains import RetrievalQA
+from langchain_community.llms import HuggingFacePipeline  # Free, local LLM
+from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import HuggingFaceEmbeddings
+import transformers
+import torch
 
-        CONTEXT:
-        {retrieved_docs}
+# Load the persisted vectorstore (from your rag_setup.py)
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+vectorstore = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
 
-        MEMORY:
-        {memory_context}
+# Initialize a free, local LLM (HuggingFace model)
+# Using DistilGPT-2 for speed/efficiency; change to "gpt2" for full GPT-2 if needed
+llm = HuggingFacePipeline.from_model_id(
+    model_id="distilgpt2",  # Lightweight model; runs locally
+    task="text-generation",
+    device=0 if torch.cuda.is_available() else -1,  # Use GPU if available, else CPU
+    model_kwargs={"temperature": 0.4, "max_length": 512}  # Adjust for creativity/response length
+)
 
-        USER QUESTION:
-        {input}
-  - id: llm
-    type: llm
-    params:
-      model: "tinyllama-1.1b-chat-v1.0"
-      provider: "huggingface"
-      temperature: 0.2
-      max_tokens: 512
-  - id: run_generation
-    type: run
-    input_map:
-      retrieved_docs: retriever.documents
-      input: input
-      memory_context: memory_context
-    output_map:
-      answer: llm.output
-outputs:
-  - answer: string
+# Set up retriever and RAG chain
+retriever = vectorstore.as_retriever(search_kwargs={"k": 3})  # Retrieve top 3 relevant chunks
+
+rag_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    retriever=vectorstore.as_retriever(),
+    chain_type="stuff",
+    return_source_documents=True  # Optional: Returns source chunks for transparency
+)
+
+# Example query
+query = "What are early symptoms of ALS?"
+response = rag_chain.invoke({"query": query})  # Updated method for newer LangChain
+
+print("Query:", query)
+print("Response:", response["result"])
+if "source_documents" in response:
+    print("Sources:", [doc.page_content[:200] + "..." for doc in response["source_documents"]])  # Preview sources
+
+

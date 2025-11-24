@@ -1,47 +1,66 @@
-# File: RAG/chatbot_with_memory.lel.yml
-name: chatbot_with_memory
-type: chain
-description: |
-  Conversation wrapper chain that manages memory (conversation buffer) and
-  delegates retrieval + generation to rag_chain. Updates memory after response.
-inputs:
-  - input: string
-  - session_id: string
-steps:
-  - id: load_memory
-    type: memory_loader
-    params:
-      backend: "local"
-      memory_path: "RAG/memory/"
-      session_key: "{session_id}"
-  - id: merge_context
-    type: map
-    params:
-      expression: |
-        {
-          "input": input,
-          "memory_context": load_memory.buffer
-        }
-  - id: call_rag
-    type: chain_call
-    params:
-      chain: "rag_chain"
-      inputs:
-        input: input
-        memory_context: load_memory.buffer
-  - id: update_memory
-    type: memory_updater
-    params:
-      backend: "local"
-      memory_path: "RAG/memory/"
-      session_key: "{session_id}"
-      append: true
-      content: |
-        - user: {input}
-        - bot: {call_rag.answer}
-  - id: output
-    type: run
-    input_map:
-      answer: call_rag.answer
-outputs:
-  - answer: string
+from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferWindowMemory
+from langchain_huggingface import HuggingFaceEmbeddings, HuggingFacePipeline
+from langchain_chroma import Chroma
+from langchain.prompts import PromptTemplate
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
+import torch
+
+# --- Embeddings + Vector store ---
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+vectorstore = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
+retriever = vectorstore.as_retriever(search_kwargs={"k": 2})  # keep context tight
+
+t5_prompt = PromptTemplate(
+    input_variables=["context", "question"],
+    template=(
+        "Answer the following question based on the context provided.\n\n"
+        "Context:\n{context}\n\n"
+        "Question: {question}\n\n"
+        "Answer in one short and clear sentence:"
+    ),
+)
+
+# --- Flan-T5 (instruction-tuned) ---
+model_name = "google/flan-t5-base"  # use flan-t5-small if RAM-limited
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+pipe = pipeline(
+    "text2text-generation",
+    model=model,
+    tokenizer=tokenizer,
+    truncation=True,             # ensure encoder input <= 512 tokens
+    max_new_tokens=128,          # decoder budget (output length)
+    # do_sample=True,            # uncomment to enable sampling
+    # temperature=0.3, top_p=0.95,
+    device=0 if torch.cuda.is_available() else -1,
+)
+llm = HuggingFacePipeline(pipeline=pipe)
+
+# --- Shorter memory window ---
+memory = ConversationBufferWindowMemory(
+    k=2,                         # small history to avoid overstuffing
+    memory_key="chat_history",
+    return_messages=True,
+    output_key="answer",
+)
+
+# --- RAG chain with token cap on stuffed docs ---
+rag_chain = ConversationalRetrievalChain.from_llm(
+    llm=llm,
+    retriever=retriever,
+    memory=memory,
+    return_source_documents=True,
+    verbose=True,
+    combine_docs_chain_kwargs={"prompt": t5_prompt},
+)
+
+# --- Test query ---
+query = "What are the first symptoms of ALS?"
+response = rag_chain.invoke({"question": query})
+print("Query:", query)
+print("Response:", response["answer"])
+if "source_documents" in response:
+    print("Sources:", [doc.page_content[:150] + "..." for doc in response["source_documents"]])
+
